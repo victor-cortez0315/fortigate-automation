@@ -30,7 +30,7 @@
       ansible.builtin.debug:
         msg: "FORTIOS token length={{ fortios_access_token | length }}"
 
-    # Task 1: Create Subnet (IPMask) - Bare minimum payload for 6.2
+    # Task 1: Create Subnet (IPMask) - Minimalist for 6.2.14
     - name: Create Subnet Addresses
       fortinet.fortios.fortios_firewall_address:
         vdom: "{{ vdom }}"
@@ -39,8 +39,9 @@
         firewall_address:
           name: "{{ item.name }}"
           type: "ipmask"
-          subnet: "{{ item.subnet }}"
-          associated_interface: "any"
+          # USE CIDR FORMAT HERE
+          subnet: "192.168.1.200/32"
+          # REMOVE associated_interface: "any" for this specific test
       loop: "{{ fortigate_addresses | selectattr('type', 'equalto', 'ipmask') | list }}"
       loop_control:
         label: "{{ item.name }}"
