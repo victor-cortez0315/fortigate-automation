@@ -68,7 +68,6 @@
           fqdn: "{{ item.fqdn | default(omit) }}"
           associated_interface: "any"
           wildcard: "{{ item.wildcard | default(omit) }}"
-          allow_routing: "enable"
       loop: "{{ fortigate_addresses }}"
       loop_control:
         label: "{{ item.name }}"
