@@ -1,0 +1,52 @@
+---
+- name: Manage FortiGate address
+  hosts: fortigates
+  gather_facts: false
+  connection: httpapi
+
+  vars:
+    vdom: root
+
+  tasks:
+    - name: Debug token length (safe)
+      ansible.builtin.debug:
+        msg: "FORTIOS token length={{ fortios_access_token | length }}"
+
+    - name: Debug address config
+      ansible.builtin.debug:
+        var: fortigate_addresses
+
+    - name: Show each address before applying
+      ansible.builtin.debug:
+        msg: >
+          Creating {{ item.name }}
+          with type {{ item.type | default('ipmask') }}
+      loop: "{{ fortigate_addresses }}"
+      loop_control:
+        label: "{{ item.name }}"
+
+    - name: Validate address type
+      ansible.builtin.assert:
+        that:
+          - item.type is not defined
+            or item.type in ['ipmask', 'iprange', 'fqdn', 'wildcard']
+      loop: "{{ fortigate_addresses }}"
+      loop_control:
+        label: "{{ item.name }}"
+
+    - name: Manage address objects
+      fortinet.fortios.fortios_firewall_address:
+        vdom: "{{ vdom }}"
+        access_token: "{{ fortios_access_token }}"
+        state: "{{ item.state | default('present') }}"
+        firewall_address:
+          name: "{{ item.name }}"
+          type: "{{ item.type | default('ipmask') }}"
+          subnet: "{{ item.subnet | default(omit) }}"
+          start_ip: "{{ item.start_ip | default(omit) }}"
+          end_ip: "{{ item.end_ip | default(omit) }}"
+          fqdn: "{{ item.fqdn | default(omit) }}"
+          wildcard: "{{ item.wildcard | default(omit) }}"
+      loop: "{{ fortigate_addresses }}"
+      loop_control:
+        label: "{{ item.name }}"

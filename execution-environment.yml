@@ -1,0 +1,19 @@
+---
+version: 3
+
+images:
+  base_image:
+    name: ghcr.io/ansible/community-ansible-dev-tools:latest
+
+build_arg_defaults:
+  ANSIBLE_GALAXY_CLI_COLLECTION_OPTS: "--ignore-certs"
+
+dependencies:
+  galaxy: collections/requirements.yml
+  python: requirements.txt
+
+additional_build_steps:
+  append_builder:
+    - |
+      # Disable bindep system dependencies cleanly
+      RUN echo "" > /output/bindep/run.txt
