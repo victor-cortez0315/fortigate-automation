@@ -1,22 +1,22 @@
 ---
-vdom: "root"
-fortios_access_token: "{{ fortigate_token }}"
+# vdom: "root"
+# fortios_access_token: "{{ fortigate_token }}"
 
-fortigate_addresses:
-  # ✅ Basic IP (your current test)
-  - name: "test-address"
-    subnet: "192.168.1.200 255.255.255.255"
-    state: "present"
+# fortigate_addresses:
+#   # ✅ Basic IP (your current test)
+#   - name: "test-address"
+#     subnet: "192.168.1.200 255.255.255.255"
+#     state: "present"
 
-  # ✅ IP range test
-  - name: "range-test"
-    type: iprange
-    start_ip: "192.168.1.10"
-    end_ip: "192.168.1.20"
-    state: "present"
+#   # ✅ IP range test
+#   - name: "range-test"
+#     type: iprange
+#     start_ip: "192.168.1.10"
+#     end_ip: "192.168.1.20"
+#     state: "present"
 
-  # ✅ FQDN test
-  - name: "google-test"
-    type: fqdn
-    fqdn: "google.com"
-    state: "present"
+#   # ✅ FQDN test
+#   - name: "google-test"
+#     type: fqdn
+#     fqdn: "google.com"
+#     state: "present"
