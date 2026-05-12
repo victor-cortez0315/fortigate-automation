@@ -54,3 +54,16 @@
       loop: "{{ fortigate_addresses }}"
       loop_control:
         label: "{{ item.name }}"
+
+    - name: Debug full item payload (before sending to FortiGate)
+      ansible.builtin.debug:
+        msg: >
+          name={{ item.name }}
+          type={{ item.type | default('ipmask') }}
+          subnet={{ item.subnet | default('N/A') }}
+          start_ip={{ item.start_ip | default('N/A') }}
+          end_ip={{ item.end_ip | default('N/A') }}
+          fqdn={{ item.fqdn | default('N/A') }}
+      loop: "{{ fortigate_addresses }}"
+      loop_control:
+        label: "{{ item.name }}"
