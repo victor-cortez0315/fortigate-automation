@@ -37,14 +37,10 @@
         access_token: "{{ fortios_access_token }}"
         state: "present"
         firewall_address:
-          name: "{{ item.name }}"
+          name: "test-ansible-new-name" # Change name to rule out DB locks
           type: "ipmask"
-          # USE CIDR FORMAT HERE
-          subnet: "192.168.1.200/32"
-          # REMOVE associated_interface: "any" for this specific test
-      loop: "{{ fortigate_addresses | selectattr('type', 'equalto', 'ipmask') | list }}"
-      loop_control:
-        label: "{{ item.name }}"
+          # Try the slash-format which 6.2.14 often prefers over the space
+          subnet: "192.168.1.200/255.255.255.255"
 
     # Task 2: Create Ranges
     - name: Create Range Addresses
