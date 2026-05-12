@@ -66,6 +66,7 @@
           start_ip: "{{ item.start_ip | default(omit) }}"
           end_ip: "{{ item.end_ip | default(omit) }}"
           fqdn: "{{ item.fqdn | default(omit) }}"
+          associated_interface: "any"
           wildcard: "{{ item.wildcard | default(omit) }}"
           allow_routing: "enable"
       loop: "{{ fortigate_addresses }}"
