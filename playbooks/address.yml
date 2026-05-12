@@ -11,7 +11,7 @@
     fortigate_addresses:
       - name: "test-address-ansible"
         type: "ipmask"
-        subnet: "192.168.1.200/32"
+        subnet: "192.168.1.200 255.255.255.255"
         state: "present"
 
       - name: "range-test"
