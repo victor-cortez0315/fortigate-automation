@@ -5,16 +5,14 @@
   connection: httpapi
 
   vars:
-    vdom: root
+    vdom: "root"
+    # Ensure fortios_access_token and fortigate_addresses are defined
+    # in your inventory, vault, or extra-vars.
 
   tasks:
     - name: Debug token length (safe)
       ansible.builtin.debug:
         msg: "FORTIOS token length={{ fortios_access_token | length }}"
-
-    - name: Debug token value (temporary)
-      ansible.builtin.debug:
-        msg: "TOKEN={{ fortios_access_token }}"
 
     - name: Debug address config
       ansible.builtin.debug:
@@ -22,9 +20,7 @@
 
     - name: Show each address before applying
       ansible.builtin.debug:
-        msg: >
-          Creating {{ item.name }}
-          with type {{ item.type | default('ipmask') }}
+        msg: "Preparing to manage {{ item.name }} (type: {{ item.type | default('ipmask') }})"
       loop: "{{ fortigate_addresses }}"
       loop_control:
         label: "{{ item.name }}"
@@ -32,8 +28,8 @@
     - name: Validate address type
       ansible.builtin.assert:
         that:
-          - item.type is not defined
-            or item.type in ['ipmask', 'iprange', 'fqdn', 'wildcard']
+          - item.type is not defined or item.type in ['ipmask', 'iprange', 'fqdn', 'wildcard']
+        fail_msg: "Invalid address type for {{ item.name }}"
       loop: "{{ fortigate_addresses }}"
       loop_control:
         label: "{{ item.name }}"
@@ -51,18 +47,41 @@
           end_ip: "{{ item.end_ip | default(omit) }}"
           fqdn: "{{ item.fqdn | default(omit) }}"
           wildcard: "{{ item.wildcard | default(omit) }}"
+          allow_routing: "enable"
       loop: "{{ fortigate_addresses }}"
       loop_control:
         label: "{{ item.name }}"
 
-    - name: Debug full item payload (before sending to FortiGate)
+    - name: Fetch address objects from FortiGate to verify
+      fortinet.fortios.fortios_configuration_fact:
+        vdom: "{{ vdom }}"
+        access_token: "{{ fortios_access_token }}"
+        selector: "firewall_address"
+        params:
+          name: "{{ item.name }}"
+      loop: "{{ fortigate_addresses }}"
+      loop_control:
+        label: "{{ item.name }}"
+      register: verification_results
+
+    - name: Show verification status
+      ansible.builtin.debug:
+        msg: >
+          {% if item.meta.results.name is defined %}
+          SUCCESS: Object '{{ item.item.name }}' verified on FortiGate with type '{{ item.meta.results.type }}'.
+          {% else %}
+          FAILED: Object '{{ item.item.name }}' was not found or could not be verified.
+          {% endif %}
+      loop: "{{ verification_results.results }}"
+      loop_control:
+        label: "{{ item.item.name }}"
+
+    - name: Debug full item payload (Final Summary)
       ansible.builtin.debug:
         msg: >
           name={{ item.name }}
           type={{ item.type | default('ipmask') }}
           subnet={{ item.subnet | default('N/A') }}
-          start_ip={{ item.start_ip | default('N/A') }}
-          end_ip={{ item.end_ip | default('N/A') }}
           fqdn={{ item.fqdn | default('N/A') }}
       loop: "{{ fortigate_addresses }}"
       loop_control:
