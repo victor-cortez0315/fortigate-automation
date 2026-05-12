@@ -7,8 +7,23 @@
   vars:
     vdom: "root"
     fortios_access_token: "{{ fortigate_token }}"
-    # Ensure fortios_access_token and fortigate_addresses are defined
-    # in your inventory, vault, or extra-vars.
+
+    fortigate_addresses:
+      - name: "test-address-ansible"
+        type: "ipmask"
+        subnet: "192.168.1.200 255.255.255.255"
+        state: "present"
+
+      - name: "range-test"
+        type: "iprange"
+        start_ip: "192.168.1.10"
+        end_ip: "192.168.1.20"
+        state: "present"
+
+      - name: "google-test"
+        type: "fqdn"
+        fqdn: "google.com"
+        state: "present"
 
   tasks:
     - name: Debug All Variables
