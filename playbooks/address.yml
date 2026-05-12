@@ -90,7 +90,7 @@
     - name: Show verification status
       ansible.builtin.debug:
         msg: >
-          {% if item.meta.results.name is defined or (item.meta.results is list and item.meta.results[0].name is defined) %}
+          {% if item.meta.results.name is defined or (item.meta.results is iterable and item.meta.results[0].name is defined) %}
           SUCCESS: Object '{{ item.item.name }}' verified on FortiGate.
           {% else %}
           FAILED: Object '{{ item.item.name }}' was not found.
