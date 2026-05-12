@@ -12,6 +12,10 @@
       ansible.builtin.debug:
         msg: "FORTIOS token length={{ fortios_access_token | length }}"
 
+    - name: Debug token value (temporary)
+      ansible.builtin.debug:
+        msg: "TOKEN={{ fortios_access_token }}"
+
     - name: Debug address config
       ansible.builtin.debug:
         var: fortigate_addresses
