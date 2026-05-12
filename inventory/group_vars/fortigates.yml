@@ -6,7 +6,7 @@ fortigate_addresses:
   # ✅ Basic IP (your current test)
   - name: "test-address"
     subnet: "192.168.1.200 255.255.255.255"
-    state: "absent"
+    state: "present"
 
   # ✅ IP range test
   - name: "range-test"
