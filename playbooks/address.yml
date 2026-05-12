@@ -6,10 +6,15 @@
 
   vars:
     vdom: "root"
+    fortios_access_token: "{{ fortigate_token }}"
     # Ensure fortios_access_token and fortigate_addresses are defined
     # in your inventory, vault, or extra-vars.
 
   tasks:
+    - name: Debug All Variables
+      ansible.builtin.debug:
+        msg: "Available vars: {{ vars.keys() | list }}"
+
     - name: Debug token length (safe)
       ansible.builtin.debug:
         msg: "FORTIOS token length={{ fortios_access_token | length }}"
