@@ -2,13 +2,10 @@
 - name: Manage FortiGate address
   hosts: fortigates
   gather_facts: false
-  connection: local
+  connection: httpapi
 
   vars:
     vdom: "root"
-
-    # ✅ FIXED: trim token
-    fortios_access_token: "{{ fortigate_token | trim }}"
 
     fortigate_addresses:
       - name: "test-address-ansible"
@@ -58,7 +55,6 @@
     - name: Create Subnet Addresses
       fortinet.fortios.fortios_firewall_address:
         vdom: "{{ vdom }}"
-        access_token: "{{ fortios_access_token }}"
         state: "present"
         firewall_address:
           name: "test-ansible-new-name"
@@ -69,7 +65,6 @@
     - name: Create Range Addresses
       fortinet.fortios.fortios_firewall_address:
         vdom: "{{ vdom }}"
-        access_token: "{{ fortios_access_token }}"
         state: "present"
         firewall_address:
           name: "{{ item.name }}"
@@ -85,7 +80,6 @@
     - name: Create FQDN Addresses
       fortinet.fortios.fortios_firewall_address:
         vdom: "{{ vdom }}"
-        access_token: "{{ fortios_access_token }}"
         state: "present"
         firewall_address:
           name: "{{ item.name }}"
@@ -100,7 +94,6 @@
     - name: Fetch address objects from FortiGate to verify
       fortinet.fortios.fortios_configuration_fact:
         vdom: "{{ vdom }}"
-        access_token: "{{ fortios_access_token }}"
         selector: "firewall_address"
         params:
           name: "{{ item.name }}"
