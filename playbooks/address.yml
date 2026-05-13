@@ -6,7 +6,9 @@
 
   vars:
     vdom: "root"
-    fortios_access_token: "{{ fortigate_token }}"
+
+    # ✅ FIXED: trim token
+    fortios_access_token: "{{ fortigate_token | trim }}"
 
     fortigate_addresses:
       - name: "test-address-ansible"
@@ -26,23 +28,44 @@
         state: "present"
 
   tasks:
+
+    # ✅ Debug token safely (already good)
     - name: Debug token length (safe)
       ansible.builtin.debug:
         msg: "FORTIOS token length={{ fortios_access_token | length }}"
 
-    # Task 1: Create Subnet (IPMask) - Minimalist for 6.2.14
+    # ✅ OPTIONAL but powerful: show token edges
+    - name: Debug token start/end
+      ansible.builtin.debug:
+        msg: "Token starts={{ fortios_access_token[:5] }}... ends={{ fortios_access_token[-5:] }}"
+
+    # ✅ NEW: Connectivity + token validation
+    - name: Test FortiGate connectivity
+      uri:
+        url: "https://{{ inventory_hostname }}/api/v2/cmdb/system/status"
+        method: GET
+        validate_certs: false
+        headers:
+          Authorization: "Bearer {{ fortios_access_token }}"
+      register: test_result
+      failed_when: test_result.status != 200
+
+    - name: Show connectivity result
+      ansible.builtin.debug:
+        msg: "FortiGate reachable ✅ (HTTP {{ test_result.status }})"
+
+    # ✅ Task 1: Create Subnet
     - name: Create Subnet Addresses
       fortinet.fortios.fortios_firewall_address:
         vdom: "{{ vdom }}"
         access_token: "{{ fortios_access_token }}"
         state: "present"
         firewall_address:
-          name: "test-ansible-new-name" # Change name to rule out DB locks
+          name: "test-ansible-new-name"
           type: "ipmask"
-          # Try the slash-format which 6.2.14 often prefers over the space
           subnet: "192.168.1.200/255.255.255.255"
 
-    # Task 2: Create Ranges
+    # ✅ Task 2: Create Ranges
     - name: Create Range Addresses
       fortinet.fortios.fortios_firewall_address:
         vdom: "{{ vdom }}"
@@ -58,7 +81,7 @@
       loop_control:
         label: "{{ item.name }}"
 
-    # Task 3: Create FQDNs
+    # ✅ Task 3: Create FQDNs
     - name: Create FQDN Addresses
       fortinet.fortios.fortios_firewall_address:
         vdom: "{{ vdom }}"
@@ -73,7 +96,7 @@
       loop_control:
         label: "{{ item.name }}"
 
-    # Verification Section
+    # ✅ Verification
     - name: Fetch address objects from FortiGate to verify
       fortinet.fortios.fortios_configuration_fact:
         vdom: "{{ vdom }}"
@@ -90,10 +113,11 @@
     - name: Show verification status
       ansible.builtin.debug:
         msg: >
-          {% if item.meta.results.name is defined or (item.meta.results is iterable and item.meta.results[0].name is defined) %}
-          SUCCESS: Object '{{ item.item.name }}' verified on FortiGate.
+          {% if item.meta.results.name is defined or
+                (item.meta.results is iterable and item.meta.results[0].name is defined) %}
+          ✅ SUCCESS: Object '{{ item.item.name }}' verified on FortiGate.
           {% else %}
-          FAILED: Object '{{ item.item.name }}' was not found.
+          ❌ FAILED: Object '{{ item.item.name }}' not found.
           {% endif %}
       loop: "{{ verification_results.results }}"
       loop_control:
