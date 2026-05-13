@@ -41,8 +41,8 @@
 
     # ✅ NEW: Connectivity + token validation
     - name: Test FortiGate connectivity
-      uri:
-        url: "https://{{ inventory_hostname }}/api/v2/cmdb/system/status"
+      ansible.builtin.uri:
+        url: "https://{{ ansible_host }}:{{ ansible_httpapi_port }}/api/v2/cmdb/system/status"
         method: GET
         validate_certs: false
         headers:
