@@ -2,7 +2,7 @@
 - name: Manage FortiGate address
   hosts: fortigates
   gather_facts: false
-  connection: httpapi
+  connection: local
 
   vars:
     vdom: "root"
@@ -42,7 +42,7 @@
     # ✅ NEW: Connectivity + token validation
     - name: Test FortiGate connectivity
       ansible.builtin.uri:
-        url: "https://{{ ansible_host }}:{{ ansible_httpapi_port }}/api/v2/cmdb/system/status"
+        url: "https://{{ ansible_host }}:20443/api/v2/cmdb/system/status"
         method: GET
         validate_certs: false
         headers:
